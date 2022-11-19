@@ -5,6 +5,9 @@ import numpy as np
 import time
 import math
 
+from adafruit_servokit import ServoKit
+kit = ServoKit(channels=16)
+
 l0 = 50
 l1 = 100
 l2 = 131
@@ -38,16 +41,18 @@ for n in servos:
 
 v_kit = Visualisation_Kit()
 
-FL = leg(None, servos, servo_angles, servo_inv, l0, l1, l2,
-         name='FL', f_test=True, f_viz=True)
+FL = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2,
+         name='FL', f_test=False)
 
 scale_X = 0.8
 scale_Y = 1.4
 
-T = np.linspace(math.pi, -50*math.pi, 1000)
+T = np.linspace(math.pi, -2*math.pi, 200)
 for t in T:
     x, y = FL.move_trajectory(t, scale_X=scale_X, scale_Y=scale_Y)
     ang1, ang2 = FL.IK2(x, y)
     ang1 = math.degrees(ang1)
     ang2 = math.degrees(ang2)
+
+    FL.move2(t, scale_Y, scale_Y)
     v_kit.set_angle(0, ang1, ang2, x, y)

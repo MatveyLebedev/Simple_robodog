@@ -43,14 +43,11 @@ class leg:
                         l0,
                         l1,
                         l2,
-                        rotation_speed,
                         name, 
-                        f_test, 
-                        f_viz=False):
+                        f_test):
         self.plot_x = []
         self.plot_y = []
         self.f_test = f_test
-        self.f_viz = f_viz
         self.kit = kit
         self.servo_angles = servo_angles
         self.servo_inv = servo_inv
@@ -59,7 +56,6 @@ class leg:
         self.l0 = l0
         self.l1 = l1
         self.l2 = l2
-        self.rotation_speed = rotation_speed
         self.y0 = l1 + l2  # change
         self.R = self.l1*30/44.5
         # Смещение центра окружности 
@@ -218,3 +214,26 @@ class leg:
             y = ydef
         x = xdef
         return x, y
+
+    def move_xy(self, x, y):
+        ang1, ang2 = self.IK2(x, y)
+        ang1 = m.degrees(ang1)
+        ang2 = m.degrees(ang2)
+
+        self.servo_ang_1 = self.servo_angles[self.name + '1']
+        self.servo_ang_2 = self.servo_angles[self.name + '2'] + ang1 - 180
+        self.servo_ang_3 = self.servo_angles[self.name + '3'] + ang2
+
+        self.set_servos()
+
+    def move2(self, t, scale_X, scale_Y):
+        x, y = self.move_trajectory(t, scale_X, scale_Y)
+        ang1, ang2 = self.IK2(x, y)
+        ang1 = m.degrees(ang1)
+        ang2 = m.degrees(ang2)
+
+        self.servo_ang_1 = self.servo_angles[self.name + '1']
+        self.servo_ang_2 = self.servo_angles[self.name + '2'] + ang1 - 180
+        self.servo_ang_3 = self.servo_angles[self.name + '3'] + ang2
+
+        self.set_servos()
