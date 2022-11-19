@@ -4,13 +4,14 @@ import time
 import pickle
 import matplotlib.pyplot as plt
 from leg import leg
+from walk import walk
 
 f_test = False
 
 # constants in mm
 l0 = 50
-l1 = 98
-l2 = 126
+l1 = 100
+l2 = 135
 a0 = 0
 b0 = 0
 
@@ -21,8 +22,8 @@ else:
     kit = None
 
 # do leg init first
-servos = {'RR1': 1, 'RR2': 2, 'RR3': 3, 'RL3': 7, 'RL2': 6, 'RL1': 5, 'FR3': 9, 'FR2': 10,
-          'FR1': 11, 'FL2': 13, 'FL3': 14, 'FL1': 15}
+servos = {'RR1': 2, 'RR2': 1, 'RR3': 0, 'RL3': 4, 'RL2': 5, 'RL1': 6, 'FR3': 15, 'FR2': 14,
+          'FR1': 13, 'FL2': 10, 'FL3': 11, 'FL1': 9}
 
 try:
     with open('/home/dog/Simple_robodog/colib_coif.pickle', 'rb') as f:
@@ -52,10 +53,36 @@ for n in servos:
 
 print(servo_angles)
 
-FL = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'FL', f_test)
-FR = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'FR', f_test)
-RL = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'RL', f_test)
-RR = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'RR', f_test)
+FL = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'FL', f_test, x0_shift=-75, y0_shift=7)
+FR = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'FR', f_test, x0_shift=-75, y0_shift=7)
+RL = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'RL', f_test, x0_shift=-150)
+RR = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'RR', f_test, x0_shift=-150)
+
+
+Walk_controller = walk(FL, FR, RL, RR, l1, l2, steps=20, round_time=5)
+
+Walk_controller.stop()
+time.sleep(2)
+#Walk_controller.shag_go(1)
+
+Walk_controller.simple_go(10)
+
+Walk_controller.stop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #FL.move(10, 20)
@@ -64,12 +91,12 @@ RR = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'RR', f_test)
 FL.elips_init(1, 1, 1)
 for i in range(200):
     FL.elips_step(i / 100)
-
+git config --global user.email "you@example.com"
 print(FL.plot_x, FL.plot_y)
 plt.scatter(FL.plot_x, FL.plot_y)
 plt.show()
 """
-
+"""
 # direct move for gagarinskie ctenia
 t = 0.8 # time in s
 time.sleep(2)
@@ -130,7 +157,7 @@ for _ in range(ang):
     RL.direct_move(0, 0, -1)
     FL.direct_move(0, 0, -1)
     time.sleep(t / ang / 6)
-
+"""
 
 
 
@@ -156,3 +183,5 @@ for _ in range(30):
     time.sleep(t / 30)
 # 2 step
 """
+servos = {'RR1': 2, 'RR2': 1, 'RR3': 0, 'RL3': 4, 'RL2': 5, 'RL1': 6, 'FR3': 15, 'FR2': 14,
+          'FR1': 13, 'FL2': 10, 'FL3': 11, 'FL1': 9}

@@ -6,8 +6,8 @@ inv_angle = leg.inv_angle
 
 kit = ServoKit(channels=16)
 # do leg init first
-servos = {'RR1': 11, 'RR2': 10, 'RR3': 9, 'RL3': 7, 'RL2': 6, 'RL1': 5, 'FR3': 3, 'FR2': 14,
-          'FR1': 1, 'FL2': 1, 'FL3': 2, 'FL1': 0}
+servos = {'RR1': 2, 'RR2': 1, 'RR3': 0, 'RL3': 4, 'RL2': 5, 'RL1': 6, 'FR3': 15, 'FR2': 14,
+          'FR1': 13, 'FL2': 10, 'FL3': 11, 'FL1': 9}
 
 try:
     with open('servo_inv.pickle', 'rb') as f:

@@ -5,6 +5,7 @@ import time
 from sympy import Symbol, solve, Eq
 import matplotlib.pyplot as plt
 from math import floor
+import math as m
 
 class leg:
     @staticmethod
@@ -18,8 +19,8 @@ class leg:
                 l = list(range(90, -100, -1))
                 ang = 90 + l.index(ang)
         return ang
+        
     @staticmethod
-
     def restr_ang(ang):
         if ang > 180:
             ang = 180
@@ -33,8 +34,18 @@ class leg:
             self.kit.servo[self.sp2].angle = self.restr_ang(self.inv_angle(self.servo_ang_2, self.servo_inv[self.name + '2']))
             self.kit.servo[self.sp3].angle = self.restr_ang(self.inv_angle(self.servo_ang_3, self.servo_inv[self.name + '3']))
 
-
-    def __init__(self, kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, name, f_test):
+            
+    def __init__(self, kit,
+                        servos,
+                        servo_angles, 
+                        servo_inv,
+                        l0,
+                        l1,
+                        l2,
+                        name, 
+                        f_test,
+                        y0_shift = 0,
+                        x0_shift = 0):
         self.plot_x = []
         self.plot_y = []
         self.f_test = f_test
@@ -43,18 +54,15 @@ class leg:
         self.servo_inv = servo_inv
         self.servos = servos
         self.name = name
-        self.a0 = a0
-        self.b0 = b0
         self.l0 = l0
         self.l1 = l1
         self.l2 = l2
-        self.y0 = l1 + l2  # change
         
-
-        with open('/home/dog/Simple_robodog/leg_solve_x.pickle', 'rb') as f:
-            self.leg_solves_x = pickle.load(f)
-        with open('/home/dog/Simple_robodog/leg_solve_y.pickle', 'rb') as f:
-            self.leg_solves_y = pickle.load(f)
+        self.R = self.l1*30/44.5
+        # Смещение центра окружности 
+        self.y0 = -(self.R + self.l1*80/44.5) + y0_shift
+        self.x0 = x0_shift
+        self.alpha = (m.pi/2-m.asin((self.R - self.l1*30/44.5)/self.R))
 
         self.sp1 = servos[name + '1']
         self.sp2 = servos[name + '2']
@@ -104,6 +112,12 @@ class leg:
         theta = [theta1, theta2, theta3]
         return (theta, error)
     
+    def IK2(self, X, Y):
+        q2 = m.acos((X**2 + Y**2 - self.l1**2 - self.l2**2)/(2*self.l1*self.l2)) 
+        q1 = m.atan2(Y,X) - m.atan2(self.l2*m.sin(q2),(self.l1+self.l2*m.cos(q2)))
+        # углы в радианах
+        return q1, q2
+
     def direct_move(self, a, b, g=0):
         self.servo_ang_1 =self.servo_ang_1  + a
         self.servo_ang_2 = self.servo_ang_2 + b
@@ -138,6 +152,11 @@ class leg:
         self.plot_x.append(x)
         self.plot_y.append(y)
         
+
+        print('move time: ', time.time() - Start)
+        print('a, b: ', a, b)
+        print(self.servo_ang_1)
+        print(self.servo_ang_2)
 
         print('move time: ', time.time() - Start)
         print('a, b: ', a, b)
@@ -180,3 +199,49 @@ class leg:
         print(x, y)
         print(time.time() - S)
         self.move(x, y)
+
+    def move_trajectory(self, t, scale_X, scale_Y):
+        #t = m.sin(2 * self.rotation_speed * np.pi * t)
+        H = self.y0 + self.R / 2
+
+        xdef = (self.R * m.cos(t) + self.x0)
+        ydef = (self.R * m.sin(t) + self.y0)
+
+        xdef *= scale_X
+        ydef *= scale_Y
+        H = H*scale_Y
+        if ydef < H:
+            y = H
+        else:
+            y = ydef
+        x = xdef
+        return x, y
+
+    def move_xy(self, x, y):
+        ang1, ang2 = self.IK2(x, y)
+        ang1 = m.degrees(ang1)
+        ang2 = m.degrees(ang2)
+
+        ang1 = ang1 + 180 - 90
+        ang2 = ang2 - 90
+        print(ang1, ang2)
+        self.servo_ang_1 = self.servo_angles[self.name + '1'] + ang2
+        self.servo_ang_2 = self.servo_angles[self.name + '2'] + ang1
+        self.servo_ang_3 = self.servo_angles[self.name + '3']
+
+        self.set_servos()
+
+    def move2(self, t, scale_X, scale_Y):
+        x, y = self.move_trajectory(t, scale_X, scale_Y)
+        ang1, ang2 = self.IK2(x, y)  # !!!
+        ang1 = m.degrees(ang1)
+        ang2 = m.degrees(ang2)
+        
+        ang1 = ang1 + 180 - 90
+        ang2 = ang2 - 90
+        print(ang1, ang2)
+        self.servo_ang_1 = self.servo_angles[self.name + '1'] + ang2
+        self.servo_ang_2 = self.servo_angles[self.name + '2'] + ang1
+        self.servo_ang_3 = self.servo_angles[self.name + '3']
+
+        self.set_servos()
