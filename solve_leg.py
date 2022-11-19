@@ -3,9 +3,9 @@ import pickle
 import matplotlib.pyplot as plt
 
 
-l1 = 1
-l2 = 1
-y0 = l1 + l2
+l1 = 98
+l2 = 126
+y0 = (l1 + l2) 
 
 leg_solves_x = np.zeros([181, 181])  # [a, b]
 leg_solves_y = np.zeros([181, 181])  # [a, b]
