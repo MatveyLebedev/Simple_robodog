@@ -7,8 +7,8 @@ f_test = True
 
 # constants in mm
 l0 = 50
-l1 = 98
-l2 = 126
+l1 = 100
+l2 = 131
 a0 = 0
 b0 = 0
 
@@ -50,10 +50,10 @@ for n in servos:
 
 print(servo_angles)
 
-FL = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'FL', f_test)
-FR = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'FR', f_test)
-RL = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'RL', f_test)
-RR = leg(kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, 'RR', f_test)
+FL = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'FL', f_test)
+FR = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'FR', f_test)
+RL = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'RL', f_test)
+RR = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'RR', f_test)
 
 
 #FL.move(10, 20)

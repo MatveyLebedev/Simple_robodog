@@ -5,6 +5,7 @@ import time
 from sympy import Symbol, solve, Eq
 import matplotlib.pyplot as plt
 from math import floor
+import math as m
 
 class leg:
     @staticmethod
@@ -33,23 +34,38 @@ class leg:
             self.kit.servo[self.sp2].angle = self.restr_ang(self.inv_angle(self.servo_ang_2, self.servo_inv[self.name + '2']))
             self.kit.servo[self.sp3].angle = self.restr_ang(self.inv_angle(self.servo_ang_3, self.servo_inv[self.name + '3']))
 
+            
 
-    def __init__(self, kit, servos, servo_angles, servo_inv, a0, b0, l0, l1, l2, name, f_test):
+    def __init__(self, kit,
+                        servos,
+                        servo_angles, 
+                        servo_inv,
+                        l0,
+                        l1,
+                        l2,
+                        rotation_speed,
+                        name, 
+                        f_test, 
+                        f_viz=False):
         self.plot_x = []
         self.plot_y = []
         self.f_test = f_test
+        self.f_viz = f_viz
         self.kit = kit
         self.servo_angles = servo_angles
         self.servo_inv = servo_inv
         self.servos = servos
         self.name = name
-        self.a0 = a0
-        self.b0 = b0
         self.l0 = l0
         self.l1 = l1
         self.l2 = l2
+        self.rotation_speed = rotation_speed
         self.y0 = l1 + l2  # change
-        
+        self.R = self.l1*30/44.5
+        # Смещение центра окружности 
+        self.y0 = -(self.R + self.l1*30/44.5)
+        self.x0 = 0
+        self.alpha = (m.pi/2-m.asin((self.R - self.l1*30/44.5)/self.R))
 
         with open('leg_solve_x.pickle', 'rb') as f:
             self.leg_solves_x = pickle.load(f)
@@ -104,6 +120,12 @@ class leg:
         theta = [theta1, theta2, theta3]
         return (theta, error)
     
+    def IK2(self, X, Y):
+        q2 = m.acos((X**2 + Y**2 - self.l1**2 - self.l2**2)/(2*self.l1*self.l2)) 
+        q1 = m.atan2(Y,X) - m.atan2(self.l2*m.sin(q2),(self.l1+self.l2*m.cos(q2)))
+        # углы в радианах
+        return q1, q2
+
     def direct_move(self, a, b, g=0):
         self.servo_ang_1 =self.servo_ang_1  + a
         self.servo_ang_2 = self.servo_ang_2 + b
@@ -137,7 +159,6 @@ class leg:
 
         self.plot_x.append(x)
         self.plot_y.append(y)
-        
 
         print('move time: ', time.time() - Start)
         print('a, b: ', a, b)
@@ -180,3 +201,20 @@ class leg:
         print(x, y)
         print(time.time() - S)
         self.move(x, y)
+
+    def move_trajectory(self, t, scale_X, scale_Y):
+        #t = m.sin(2 * self.rotation_speed * np.pi * t)
+        H = self.y0 - 0
+
+        xdef = (self.R * m.cos(t) + self.x0)
+        ydef = (self.R * m.sin(t) + self.y0)
+
+        xdef *= scale_X
+        ydef *= scale_Y
+        H = H*scale_Y
+        if ydef < H:
+            y = H
+        else:
+            y = ydef
+        x = xdef
+        return x, y
