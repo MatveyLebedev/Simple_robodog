@@ -1,11 +1,13 @@
 from adafruit_servokit import ServoKit
 import time
 import pickle
+from leg import leg
+inv_angle = leg.inv_angle
 
 kit = ServoKit(channels=16)
 # do leg init first
-servos = {'RR1': 1, 'RR2': 2, 'RR3': 3, 'RL3': 7, 'RL2': 6, 'RL1': 5, 'FR3': 9, 'FR2': 10,
-          'FR1': 11, 'FL2': 13, 'FL3': 14, 'FL1': 15}
+servos = {'RR1': 11, 'RR2': 10, 'RR3': 9, 'RL3': 7, 'RL2': 6, 'RL1': 5, 'FR3': 3, 'FR2': 14,
+          'FR1': 1, 'FL2': 1, 'FL3': 2, 'FL1': 0}
 
 try:
     with open('servo_inv.pickle', 'rb') as f:
@@ -32,7 +34,7 @@ for n in servos:
         servo_angles[n] = 90 + colibration_coif[n]
     else:
         servo_angles[n] = 90
-    kit.servo[servos[n]].angle=servo_angles[n]
+    kit.servo[servos[n]].angle=inv_angle(servo_angles[n], servo_inv[n])
 print(servo_angles)
 
 while True:
@@ -48,13 +50,13 @@ while True:
                 servo_inv[name] = -1
             else:
                 servo_inv[name] = 1
-            kit.servo[servos[name]].angle = servo_angles[name] * servo_inv[name]
+            kit.servo[servos[name]].angle = inv_angle(servo_angles[name], servo_inv[name])
         else:
             if name not in colibration_coif.keys():
                 colibration_coif[name] = int(ang)
             colibration_coif[name] += int(ang)
             servo_angles[name] += int(ang) 
-            kit.servo[servos[name]].angle = servo_angles[name] * servo_inv[name]
+            kit.servo[servos[name]].angle = inv_angle(servo_angles[name], servo_inv[name])
 
 print(colibration_coif)
 print(servo_inv)
