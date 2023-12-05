@@ -58,7 +58,7 @@ FR = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'FR', f_test, x0_shif
 RL = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'RL', f_test, x0_shift=-150)
 RR = leg(kit, servos, servo_angles, servo_inv, l0, l1, l2, 'RR', f_test, x0_shift=-150)
 
-
+"""
 Walk_controller = walk(FL, FR, RL, RR, l1, l2, steps=20, round_time=5)
 
 Walk_controller.stop()
@@ -68,21 +68,7 @@ time.sleep(2)
 Walk_controller.simple_go(10)
 
 Walk_controller.stop()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+"""
 
 
 #FL.move(10, 20)
