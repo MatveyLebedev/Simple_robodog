@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from leg import leg
 from walk import walk
 
-f_test = False
+f_test = True
 
 # constants in mm
 l0 = 50
